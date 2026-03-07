@@ -17,7 +17,7 @@ class OrderService {
         const order = await repository.getOrder(orderId);
 
         if (!order) {
-            throw new Error("Pedido não encontrado");
+            throw new Error("Order not found");
         }
 
         return order;
@@ -33,7 +33,7 @@ class OrderService {
         const deleted = await repository.deleteOrder(orderId);
 
         if (!deleted) {
-            throw new Error("Pedido não encontrado");
+            throw new Error("Order not found");
         }
 
     }
