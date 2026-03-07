@@ -14,6 +14,6 @@ function mapOrderRequest(data) {
     };
 }
 
-export default {
+module.exports = {
     mapOrderRequest
 };

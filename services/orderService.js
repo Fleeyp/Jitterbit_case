@@ -1,5 +1,5 @@
-import { createOrder as _createOrder, getOrder as _getOrder, listOrders as _listOrders, deleteOrder as _deleteOrder, updateOrder as _updateOrder } from "../repositories/orderRepository";
-import { mapOrderRequest } from "../utils/mapper";
+const repository = require("../repositories/orderRepository");
+const { mapOrderRequest } = require("../utils/mapper");
 
 class OrderService {
 
@@ -7,17 +7,17 @@ class OrderService {
 
         const order = mapOrderRequest(data);
 
-        await _createOrder(order);
+        await repository.createOrder(order);
 
         return order;
     }
 
     async getOrder(orderId) {
 
-        const order = await _getOrder(orderId);
+        const order = await repository.getOrder(orderId);
 
         if (!order) {
-            throw new Error("Order not found.");
+            throw new Error("Pedido não encontrado");
         }
 
         return order;
@@ -25,15 +25,15 @@ class OrderService {
 
     async listOrders() {
 
-        return await _listOrders();
+        return await repository.listOrders();
     }
 
     async deleteOrder(orderId) {
 
-        const deleted = await _deleteOrder(orderId);
+        const deleted = await repository.deleteOrder(orderId);
 
         if (!deleted) {
-            throw new Error("Order not found.");
+            throw new Error("Pedido não encontrado");
         }
 
     }
@@ -44,11 +44,11 @@ class OrderService {
 
         order.orderId = orderId;
 
-        await _updateOrder(order);
+        await repository.updateOrder(order);
 
         return order;
     }
 
 }
 
-export default new OrderService();
+module.exports = new OrderService();

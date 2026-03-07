@@ -1,4 +1,4 @@
-import { createOrder, getOrder, listOrders, updateOrder, deleteOrder } from "../services/orderService";
+const service = require("../services/orderService");
 
 class OrderController {
 
@@ -6,7 +6,7 @@ class OrderController {
 
         try {
 
-            const order = await createOrder(req.body);
+            const order = await service.createOrder(req.body);
 
             res.status(201).json(order);
 
@@ -21,7 +21,7 @@ class OrderController {
 
         try {
 
-            const order = await getOrder(req.params.id);
+            const order = await service.getOrder(req.params.id);
 
             res.status(200).json(order);
 
@@ -37,7 +37,7 @@ class OrderController {
 
         try {
 
-            const orders = await listOrders();
+            const orders = await service.listOrders();
 
             res.status(200).json(orders);
 
@@ -53,7 +53,7 @@ class OrderController {
 
         try {
 
-            const order = await updateOrder(req.params.id, req.body);
+            const order = await service.updateOrder(req.params.id, req.body);
 
             res.status(200).json(order);
 
@@ -69,7 +69,7 @@ class OrderController {
 
         try {
 
-            await deleteOrder(req.params.id);
+            await service.deleteOrder(req.params.id);
 
             res.status(204).send();
 
@@ -83,4 +83,4 @@ class OrderController {
 
 }
 
-export default new OrderController();
+module.exports = new OrderController();

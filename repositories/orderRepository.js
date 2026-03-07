@@ -1,4 +1,4 @@
-import { run, prepare, get, all } from "../config/database";
+const db = require("../config/database");
 
 class OrderRepository {
 
@@ -6,14 +6,14 @@ class OrderRepository {
 
         return new Promise((resolve, reject) => {
 
-            run(
+            db.run(
                 `INSERT INTO "Order"(orderId, value, creationDate) VALUES (?, ?, ?)`,
                 [order.orderId, order.value, order.creationDate],
                 (err) => {
 
                     if (err) return reject(err);
 
-                    const stmt = prepare(
+                    const stmt = db.prepare(
                         `INSERT INTO Items(orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`
                     );
 
@@ -33,7 +33,7 @@ class OrderRepository {
 
         return new Promise((resolve, reject) => {
 
-            get(
+            db.get(
                 `SELECT * FROM "Order" WHERE orderId = ?`,
                 [orderId],
                 (err, order) => {
@@ -41,7 +41,7 @@ class OrderRepository {
                     if (err) return reject(err);
                     if (!order) return resolve(null);
 
-                    all(
+                    db.all(
                         `SELECT productId, quantity, price FROM Items WHERE orderId = ?`,
                         [orderId],
                         (err, items) => {
@@ -64,7 +64,7 @@ class OrderRepository {
 
         return new Promise((resolve, reject) => {
 
-            all(`SELECT * FROM "Order"`, [], (err, orders) => {
+            db.all(`SELECT * FROM "Order"`, [], (err, orders) => {
 
                 if (err) return reject(err);
 
@@ -79,9 +79,9 @@ class OrderRepository {
 
         return new Promise((resolve, reject) => {
 
-            run(`DELETE FROM Items WHERE orderId = ?`, [orderId]);
+            db.run(`DELETE FROM Items WHERE orderId = ?`, [orderId]);
 
-            run(
+            db.run(
                 `DELETE FROM "Order" WHERE orderId = ?`,
                 [orderId],
                 function (err) {
@@ -100,16 +100,16 @@ class OrderRepository {
 
         return new Promise((resolve, reject) => {
 
-            run(
+            db.run(
                 `UPDATE "Order" SET value = ?, creationDate = ? WHERE orderId = ?`,
                 [order.value, order.creationDate, order.orderId],
                 (err) => {
 
                     if (err) return reject(err);
 
-                    run(`DELETE FROM Items WHERE orderId = ?`, [order.orderId]);
+                    db.run(`DELETE FROM Items WHERE orderId = ?`, [order.orderId]);
 
-                    const stmt = prepare(
+                    const stmt = db.prepare(
                         `INSERT INTO Items(orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`
                     );
 
@@ -129,4 +129,4 @@ class OrderRepository {
 
 }
 
-export default new OrderRepository();
+module.exports = new OrderRepository();

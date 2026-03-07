@@ -2,9 +2,9 @@ const sqlite3 = require("sqlite3").verbose();
 
 const db = new sqlite3.Database("./orders.db", (err) => {
     if (err) {
-        console.error("Error connecting to db.", err);
+        console.error("Erro ao conectar no banco", err);
     } else {
-        console.log("Db connected.");
+        console.log("Banco conectado.");
     }
 });
 
@@ -30,7 +30,4 @@ db.serialize(() => {
 
 });
 
-export default db;
-
-// Na criação da tabela order, precisei colocar entre aspas o nome da tabela,
-// pois 'order' é uma palavra reservada SQL
+module.exports = db;
