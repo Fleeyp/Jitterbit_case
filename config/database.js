@@ -2,9 +2,9 @@ const sqlite3 = require("sqlite3").verbose();
 
 const db = new sqlite3.Database("./orders.db", (err) => {
     if (err) {
-        console.error("Erro ao conectar no banco", err);
+        console.error("Error connecting to db.", err);
     } else {
-        console.log("Banco conectado.");
+        console.log("Db connected.");
     }
 });
 
