@@ -2,16 +2,41 @@ const db = require("../config/database");
 
 class BaseRepository {
 
+    buildWhereClause(filters) {
+
+        if (!filters || Object.keys(filters).length === 0) {
+            return {
+                clause: "",
+                values: []
+            };
+        }
+
+        const keys = Object.keys(filters);
+
+        const clause = keys
+            .map(key => `${key} = ?`)
+            .join(" AND ");
+
+        const values = Object.values(filters);
+
+        return {
+            clause: `WHERE ${clause}`,
+            values
+        };
+    }
+
     findOne(table, filters) {
 
         return new Promise((resolve, reject) => {
 
-            const keys = Object.keys(filters);
-            const values = Object.values(filters);
+            const { clause, values } = this.buildWhereClause(filters);
 
-            const conditions = keys.map(key => `${key} = ?`).join(" AND ");
-
-            const query = `SELECT * FROM "${table}" WHERE ${conditions} LIMIT 1`;
+            const query = `
+                SELECT *
+                FROM "${table}"
+                ${clause}
+                LIMIT 1
+            `;
 
             db.get(query, values, (err, row) => {
 
@@ -25,22 +50,35 @@ class BaseRepository {
 
     }
 
-    findAll(table, filters = null) {
+    findAll(table, options = {}) {
 
         return new Promise((resolve, reject) => {
 
-            let query = `SELECT * FROM "${table}"`;
-            let values = [];
+            const {
+                filters = null,
+                orderBy = null,
+                limit = null,
+                offset = null
+            } = options;
 
-            if (filters) {
+            const { clause, values } = this.buildWhereClause(filters);
 
-                const keys = Object.keys(filters);
+            let query = `
+                SELECT *
+                FROM "${table}"
+                ${clause}
+            `;
 
-                const conditions = keys.map(key => `${key} = ?`).join(" AND ");
+            if (orderBy) {
+                query += ` ORDER BY ${orderBy}`;
+            }
 
-                values = Object.values(filters);
+            if (limit) {
+                query += ` LIMIT ${limit}`;
+            }
 
-                query += ` WHERE ${conditions}`;
+            if (offset) {
+                query += ` OFFSET ${offset}`;
             }
 
             db.all(query, values, (err, rows) => {
@@ -88,22 +126,21 @@ class BaseRepository {
             const dataKeys = Object.keys(data);
             const dataValues = Object.values(data);
 
-            const filterKeys = Object.keys(filters);
-            const filterValues = Object.values(filters);
+            const { clause, values } = this.buildWhereClause(filters);
 
-            const setClause = dataKeys.map(key => `${key} = ?`).join(",");
-
-            const whereClause = filterKeys.map(key => `${key} = ?`).join(" AND ");
+            const setClause = dataKeys
+                .map(key => `${key} = ?`)
+                .join(",");
 
             const query = `
                 UPDATE "${table}"
                 SET ${setClause}
-                WHERE ${whereClause}
+                ${clause}
             `;
 
             db.run(
                 query,
-                [...dataValues, ...filterValues],
+                [...dataValues, ...values],
                 function (err) {
 
                     if (err) return reject(err);
@@ -121,14 +158,11 @@ class BaseRepository {
 
         return new Promise((resolve, reject) => {
 
-            const keys = Object.keys(filters);
-            const values = Object.values(filters);
-
-            const whereClause = keys.map(key => `${key} = ?`).join(" AND ");
+            const { clause, values } = this.buildWhereClause(filters);
 
             const query = `
                 DELETE FROM "${table}"
-                WHERE ${whereClause}
+                ${clause}
             `;
 
             db.run(query, values, function (err) {

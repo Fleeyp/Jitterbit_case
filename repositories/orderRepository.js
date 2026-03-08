@@ -25,15 +25,19 @@ class OrderRepository {
 
     async getOrder(orderId) {
 
-        const order = await baseRepository.findOne("Order", {
-            orderId: orderId
-        });
+        const order = await baseRepository.findOne(
+            "Order",
+            { orderId }
+        );
 
         if (!order) return null;
 
-        const items = await baseRepository.findAll("Items", {
-            orderId: orderId
-        });
+        const items = await baseRepository.findAll(
+            "Items",
+            {
+                filters: { orderId }
+            }
+        );
 
         order.items = items;
 
@@ -43,19 +47,26 @@ class OrderRepository {
 
     async listOrders() {
 
-        return await baseRepository.findAll("Order");
+        return await baseRepository.findAll(
+            "Order",
+            {
+                orderBy: "creationDate DESC"
+            }
+        );
 
     }
 
     async deleteOrder(orderId) {
 
-        await baseRepository.delete("Items", {
-            orderId: orderId
-        });
+        await baseRepository.delete(
+            "Items",
+            { orderId }
+        );
 
-        return await baseRepository.delete("Order", {
-            orderId: orderId
-        });
+        return await baseRepository.delete(
+            "Order",
+            { orderId }
+        );
 
     }
 
@@ -67,23 +78,25 @@ class OrderRepository {
                 value: order.value,
                 creationDate: order.creationDate
             },
-            {
-                orderId: order.orderId
-            }
+            { orderId: order.orderId }
         );
 
-        await baseRepository.delete("Items", {
-            orderId: order.orderId
-        });
+        await baseRepository.delete(
+            "Items",
+            { orderId: order.orderId }
+        );
 
         for (const item of order.items) {
 
-            await baseRepository.insert("Items", {
-                orderId: order.orderId,
-                productId: item.productId,
-                quantity: item.quantity,
-                price: item.price
-            });
+            await baseRepository.insert(
+                "Items",
+                {
+                    orderId: order.orderId,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price
+                }
+            );
 
         }
 
