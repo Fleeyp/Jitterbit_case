@@ -334,5 +334,5 @@ Below is a high-level description of the main modules for quick navigation.
   - [ ] `PUT /order/:id`
   - [ ] `DELETE /order/:id`
 
-  - **If you wish, you can use an already built, Postman Collection**
+  - **If you wish, you can use an already built Postman Collection**
   - **https://documenter.getpostman.com/view/36394362/2sBXcLgctJ**
