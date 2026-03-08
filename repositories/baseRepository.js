@@ -2,26 +2,49 @@ const db = require("../config/database");
 
 class BaseRepository {
 
+    async transaction(callback) {
+
+        return new Promise((resolve, reject) => {
+
+            db.serialize(() => {
+
+                db.run("BEGIN TRANSACTION");
+
+                callback(db)
+                    .then(result => {
+
+                        db.run("COMMIT");
+
+                        resolve(result);
+
+                    })
+                    .catch(err => {
+
+                        db.run("ROLLBACK");
+
+                        reject(err);
+
+                    });
+
+            });
+
+        });
+
+    }
+
     buildWhereClause(filters) {
 
         if (!filters || Object.keys(filters).length === 0) {
-            return {
-                clause: "",
-                values: []
-            };
+            return { clause: "", values: [] };
         }
 
         const keys = Object.keys(filters);
 
-        const clause = keys
-            .map(key => `${key} = ?`)
-            .join(" AND ");
-
-        const values = Object.values(filters);
+        const clause = keys.map(key => `${key} = ?`).join(" AND ");
 
         return {
             clause: `WHERE ${clause}`,
-            values
+            values: Object.values(filters)
         };
     }
 
@@ -69,17 +92,9 @@ class BaseRepository {
                 ${clause}
             `;
 
-            if (orderBy) {
-                query += ` ORDER BY ${orderBy}`;
-            }
-
-            if (limit) {
-                query += ` LIMIT ${limit}`;
-            }
-
-            if (offset) {
-                query += ` OFFSET ${offset}`;
-            }
+            if (orderBy) query += ` ORDER BY ${orderBy}`;
+            if (limit) query += ` LIMIT ${limit}`;
+            if (offset) query += ` OFFSET ${offset}`;
 
             db.all(query, values, (err, rows) => {
 
@@ -128,9 +143,7 @@ class BaseRepository {
 
             const { clause, values } = this.buildWhereClause(filters);
 
-            const setClause = dataKeys
-                .map(key => `${key} = ?`)
-                .join(",");
+            const setClause = dataKeys.map(key => `${key} = ?`).join(",");
 
             const query = `
                 UPDATE "${table}"
@@ -138,17 +151,13 @@ class BaseRepository {
                 ${clause}
             `;
 
-            db.run(
-                query,
-                [...dataValues, ...values],
-                function (err) {
+            db.run(query, [...dataValues, ...values], function (err) {
 
-                    if (err) return reject(err);
+                if (err) return reject(err);
 
-                    resolve(this);
+                resolve(this);
 
-                }
-            );
+            });
 
         });
 

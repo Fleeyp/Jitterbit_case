@@ -4,22 +4,26 @@ class OrderRepository {
 
     async createOrder(order) {
 
-        await baseRepository.insert("Order", {
-            orderId: order.orderId,
-            value: order.value,
-            creationDate: order.creationDate
-        });
+        return baseRepository.transaction(async () => {
 
-        for (const item of order.items) {
-
-            await baseRepository.insert("Items", {
+            await baseRepository.insert("Order", {
                 orderId: order.orderId,
-                productId: item.productId,
-                quantity: item.quantity,
-                price: item.price
+                value: order.value,
+                creationDate: order.creationDate
             });
 
-        }
+            for (const item of order.items) {
+
+                await baseRepository.insert("Items", {
+                    orderId: order.orderId,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price
+                });
+
+            }
+
+        });
 
     }
 
