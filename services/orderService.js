@@ -1,5 +1,6 @@
 const repository = require("../repositories/orderRepository");
 const { mapOrderRequest } = require("../utils/mapper");
+const AppError = require("../middlewares/AppError");
 
 class OrderService {
 
@@ -17,7 +18,7 @@ class OrderService {
         const order = await repository.getOrder(orderId);
 
         if (!order) {
-            throw new Error("Order not found");
+            throw new AppError("Order not found", 404);
         }
 
         return order;
@@ -33,7 +34,7 @@ class OrderService {
         const deleted = await repository.deleteOrder(orderId);
 
         if (!deleted) {
-            throw new Error("Order not found");
+            throw new AppError("Order not found", 404);
         }
 
     }

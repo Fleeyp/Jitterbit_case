@@ -2,7 +2,7 @@ const service = require("../services/orderService");
 
 class OrderController {
 
-    async create(req, res) {
+    async create(req, res, next) {
 
         try {
 
@@ -12,12 +12,12 @@ class OrderController {
 
         } catch (error) {
 
-            res.status(500).json({ error: error.message });
+            next(error);
 
         }
     }
 
-    async get(req, res) {
+    async get(req, res, next) {
 
         try {
 
@@ -27,13 +27,13 @@ class OrderController {
 
         } catch (error) {
 
-            res.status(404).json({ error: error.message });
+            next(error);
 
         }
 
     }
 
-    async list(req, res) {
+    async list(req, res, next) {
 
         try {
 
@@ -43,13 +43,13 @@ class OrderController {
 
         } catch (error) {
 
-            res.status(500).json({ error: error.message });
+            next(error);
 
         }
 
     }
 
-    async update(req, res) {
+    async update(req, res, next) {
 
         try {
 
@@ -59,13 +59,13 @@ class OrderController {
 
         } catch (error) {
 
-            res.status(500).json({ error: error.message });
+            next(error);
 
         }
 
     }
 
-    async delete(req, res) {
+    async delete(req, res, next) {
 
         try {
 
@@ -75,7 +75,7 @@ class OrderController {
 
         } catch (error) {
 
-            res.status(404).json({ error: error.message });
+            next(error);
 
         }
 

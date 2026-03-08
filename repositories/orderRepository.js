@@ -1,8 +1,20 @@
 const baseRepository = require("./baseRepository");
+const AppError = require("../middlewares/AppError");
 
 class OrderRepository {
 
     async createOrder(order) {
+
+        const existingOrder = await baseRepository.findOne(
+            "Order",
+            { orderId: order.orderId }
+        );
+
+        if (existingOrder) {
+
+            throw new AppError("Order with this ID already exists", 409);
+
+        }
 
         return baseRepository.transaction(async () => {
 
@@ -76,7 +88,7 @@ class OrderRepository {
 
     async updateOrder(order) {
 
-        await baseRepository.update(
+        const updateResult = await baseRepository.update(
             "Order",
             {
                 value: order.value,
@@ -84,6 +96,12 @@ class OrderRepository {
             },
             { orderId: order.orderId }
         );
+
+        if (!updateResult || updateResult.changes === 0) {
+
+            throw new AppError("Order not found", 404);
+
+        }
 
         await baseRepository.delete(
             "Items",
